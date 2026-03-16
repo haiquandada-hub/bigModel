@@ -62,6 +62,8 @@ jobs:
               "messages": [{"role": "user", "content": "Say hello"}]
             }'
         continue-on-error: true
+
+
         
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -69,15 +71,28 @@ jobs:
           fetch-depth: 1
       - name: Run GLM-5 on Issue
         uses: anthropics/claude-code-action@v1
-        env:
-          ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
+        #env:
+        #  ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
           #ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/paas/v4/"
-          ANTHROPIC_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
-          ANTHROPIC_MODEL: "glm-5"
+        #  ANTHROPIC_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+        #  ANTHROPIC_MODEL: "glm-5"
           # 思考模式通过环境变量传递（Node.js SDK 支持顶层参数）
-          ENABLE_THINKING: "true"
-          API_TIMEOUT_MS: "600000"
+        #  ENABLE_THINKING: "true"
+        #  API_TIMEOUT_MS: "600000"
         with:
+          settings: |
+            {
+                "env": {
+                    "ANTHROPIC_BASE_URL": "https://open.bigmodel.cn/api/anthropic",
+                    "API_TIMEOUT_MS": "3000000",
+                    "ANTHROPIC_API_KEY": ${{ secrets.ZHIPU_API_KEY }},
+                    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
+                    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5",
+                    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5",
+                    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5",
+                    "hasCompletedOnboarding": true
+                }
+            }
           # 提供一个占位 API Key，让 Action 的参数验证通过（实际认证由环境变量接管）
           anthropic_api_key: "placeholder"
           # 将 Issue 的标题和正文作为提示词的一部分
