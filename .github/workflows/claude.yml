@@ -71,7 +71,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         env:
           ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
-          #ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/anthropic"
+          #ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/paas/v4/"
           ANTHROPIC_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
           ANTHROPIC_MODEL: "glm-5"
           # 思考模式通过环境变量传递（Node.js SDK 支持顶层参数）
