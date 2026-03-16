@@ -25,88 +25,16 @@ jobs:
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
-      - uses: actions/checkout@v6
-        # ========== 调试步骤：验证 Secret 是否正确加载 ==========
-      - name: Debug Secret Length
-        run: |
-          echo "ZHIPU_API_KEY length: ${#ZHIPU_API_KEY}"
-          echo "First 4 chars: ${ZHIPU_API_KEY:0:4}"   # 只显示前4位，安全起见
-        env:
-          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
-
-      # ========== 直接使用 curl 测试 API 连通性 ==========
-      # 尝试使用 x-api-key 头（Anthropic 标准）
-      - name: Test API with x-api-key header
-        run: |
-          curl -v -X POST https://api.z.ai/api/anthropic/v1/messages \
-            -H "x-api-key: ${{ secrets.ZHIPU_API_KEY }}" \
-            -H "anthropic-version: 2023-06-01" \
-            -H "content-type: application/json" \
-            -d '{
-              "model": "glm-5",
-              "max_tokens": 100,
-              "messages": [{"role": "user", "content": "Say hello"}]
-            }'
-        continue-on-error: true   # 即使失败也继续后续步骤，方便查看日志
-
-      # 尝试使用 Authorization: Bearer 头（OpenAI 风格）
-      - name: Test API with Bearer token
-        run: |
-          curl -v -X POST https://api.z.ai/api/anthropic/v1/messages \
-            -H "Authorization: Bearer ${{ secrets.ZHIPU_API_KEY }}" \
-            -H "anthropic-version: 2023-06-01" \
-            -H "content-type: application/json" \
-            -d '{
-              "model": "glm-5",
-              "max_tokens": 100,
-              "messages": [{"role": "user", "content": "Say hello"}]
-            }'
-        continue-on-error: true
-
-
-        
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
-      - name: Run GLM-5 on Issue
+
+      - name: Run Claude Code
+        id: claude
         uses: anthropics/claude-code-action@v1
-        #env:
-        #  ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
-          #ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/paas/v4/"
-        #  ANTHROPIC_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
-        #  ANTHROPIC_MODEL: "glm-5"
-          # 思考模式通过环境变量传递（Node.js SDK 支持顶层参数）
-        #  ENABLE_THINKING: "true"
-        #  API_TIMEOUT_MS: "600000"
         with:
-          # 提供一个占位 API Key，让 Action 的参数验证通过（实际认证由环境变量接管）
-          anthropic_api_key: ${{ secrets.ZHIPU_API_KEY }}
-          anthropic_base_url: "https://api.z.ai/api/anthropic"
-          # 将 Issue 的标题和正文作为提示词的一部分
-          prompt: |
-            你是一个 GitHub Issue 助手，使用 GLM-5 模型。
-            请根据以下 Issue 内容，提供专业、有帮助的回复。
-
-            ## Issue 标题
-            ${{ github.event.issue.title }}
-
-            ## Issue 正文
-            ${{ github.event.issue.body }}
-
-            请用中文回答。如果 Issue 需要代码示例，请提供清晰、可运行的代码。
-            如果问题不明确，可以礼貌地请求更多信息。
-          # 传递 GitHub Token 以便发布评论
-          github_token: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
-          # 直接发布为 Issue 评论
-          post_to_issue: true
-          # 限制最大交互轮次（防止死循环）
-          claude_args: "--max-turns 3"
-      #- name: Run Claude Code
-      #  id: claude
-      #  uses: anthropics/claude-code-action@v1
-      #  with:
-      #    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
           # Optional: Customize the trigger phrase (default: @claude)
           # trigger_phrase: "/claude"
