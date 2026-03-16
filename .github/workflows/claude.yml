@@ -80,21 +80,9 @@ jobs:
         #  ENABLE_THINKING: "true"
         #  API_TIMEOUT_MS: "600000"
         with:
-          settings: |
-            {
-                "env": {
-                    "ANTHROPIC_BASE_URL": "https://open.bigmodel.cn/api/anthropic",
-                    "API_TIMEOUT_MS": "3000000",
-                    "ANTHROPIC_API_KEY": ${{ secrets.ZHIPU_API_KEY }},
-                    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
-                    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5",
-                    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5",
-                    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5",
-                    "hasCompletedOnboarding": true
-                }
-            }
           # 提供一个占位 API Key，让 Action 的参数验证通过（实际认证由环境变量接管）
-          anthropic_api_key: "placeholder"
+          anthropic_api_key: ${{ secrets.ZHIPU_API_KEY }}
+          anthropic_base_url: "https://api.z.ai/api/anthropic"
           # 将 Issue 的标题和正文作为提示词的一部分
           prompt: |
             你是一个 GitHub Issue 助手，使用 GLM-5 模型。
