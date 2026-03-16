@@ -32,8 +32,8 @@ jobs:
       - name: Run GLM-5 on Issue
         uses: anthropics/claude-code-action@v1
         env:
-          #ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
-          ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/anthropic"
+          ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
+          #ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/anthropic"
           ANTHROPIC_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
           ANTHROPIC_MODEL: "glm-5"
           # 思考模式通过环境变量传递（Node.js SDK 支持顶层参数）
@@ -41,7 +41,7 @@ jobs:
           API_TIMEOUT_MS: "600000"
         with:
           # 提供一个占位 API Key，让 Action 的参数验证通过（实际认证由环境变量接管）
-          anthropic_api_key: "placeholder"
+          # anthropic_api_key: "placeholder"
           # 将 Issue 的标题和正文作为提示词的一部分
           prompt: |
             你是一个 GitHub Issue 助手，使用 GLM-5 模型。
