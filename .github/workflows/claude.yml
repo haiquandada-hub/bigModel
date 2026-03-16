@@ -25,10 +25,12 @@ jobs:
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
-      - name: Run GLM-5 on Issue
+      - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
+      - name: Run GLM-5 on Issue
+        uses: anthropics/claude-code-action@v1
         env:
           ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
           ANTHROPIC_AUTH_TOKEN: ${{ secrets.ZHIPU_API_KEY }}
