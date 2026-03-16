@@ -25,16 +25,41 @@ jobs:
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
-      - name: Checkout repository
+      - name: Run GLM-5 on Issue
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
-
-      - name: Run Claude Code
-        id: claude
-        uses: anthropics/claude-code-action@v1
+        env:
+          ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic"
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ZHIPU_API_KEY }}
+          ANTHROPIC_MODEL: "glm-5"
+          # 思考模式通过环境变量传递（Node.js SDK 支持顶层参数）
+          ENABLE_THINKING: "true"
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # 将 Issue 的标题和正文作为提示词的一部分
+          prompt: |
+            你是一个 GitHub Issue 助手，使用 GLM-5 模型。
+            请根据以下 Issue 内容，提供专业、有帮助的回复。
+
+            ## Issue 标题
+            ${{ github.event.issue.title }}
+
+            ## Issue 正文
+            ${{ github.event.issue.body }}
+
+            请用中文回答。如果 Issue 需要代码示例，请提供清晰、可运行的代码。
+            如果问题不明确，可以礼貌地请求更多信息。
+          # 传递 GitHub Token 以便发布评论
+          github_token: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          # 直接发布为 Issue 评论
+          post_to_issue: true
+          # 限制最大交互轮次（防止死循环）
+          claude_args: "--max-turns 3"
+      #- name: Run Claude Code
+      #  id: claude
+      #  uses: anthropics/claude-code-action@v1
+      #  with:
+      #    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
           # Optional: Customize the trigger phrase (default: @claude)
           # trigger_phrase: "/claude"
