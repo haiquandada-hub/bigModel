@@ -25,6 +25,44 @@ jobs:
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
+      - uses: actions/checkout@v6
+        # ========== 调试步骤：验证 Secret 是否正确加载 ==========
+      - name: Debug Secret Length
+        run: |
+          echo "ZHIPU_API_KEY length: ${#ZHIPU_API_KEY}"
+          echo "First 4 chars: ${ZHIPU_API_KEY:0:4}"   # 只显示前4位，安全起见
+        env:
+          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+
+      # ========== 直接使用 curl 测试 API 连通性 ==========
+      # 尝试使用 x-api-key 头（Anthropic 标准）
+      - name: Test API with x-api-key header
+        run: |
+          curl -v -X POST https://api.z.ai/api/anthropic/v1/messages \
+            -H "x-api-key: ${{ secrets.ZHIPU_API_KEY }}" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d '{
+              "model": "glm-5",
+              "max_tokens": 100,
+              "messages": [{"role": "user", "content": "Say hello"}]
+            }'
+        continue-on-error: true   # 即使失败也继续后续步骤，方便查看日志
+
+      # 尝试使用 Authorization: Bearer 头（OpenAI 风格）
+      - name: Test API with Bearer token
+        run: |
+          curl -v -X POST https://api.z.ai/api/anthropic/v1/messages \
+            -H "Authorization: Bearer ${{ secrets.ZHIPU_API_KEY }}" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d '{
+              "model": "glm-5",
+              "max_tokens": 100,
+              "messages": [{"role": "user", "content": "Say hello"}]
+            }'
+        continue-on-error: true
+        
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
@@ -41,7 +79,7 @@ jobs:
           API_TIMEOUT_MS: "600000"
         with:
           # 提供一个占位 API Key，让 Action 的参数验证通过（实际认证由环境变量接管）
-          # anthropic_api_key: "placeholder"
+          anthropic_api_key: "placeholder"
           # 将 Issue 的标题和正文作为提示词的一部分
           prompt: |
             你是一个 GitHub Issue 助手，使用 GLM-5 模型。
