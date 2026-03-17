@@ -33,11 +33,15 @@ jobs:
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
+        env:
+          # 设置国产模型兼容 Anthropic 格式的 API 地址
+          # 示例使用 DeepSeek 的兼容地址，请根据实际模型文档修改
+          ANTHROPIC_BASE_URL: "https://open.bigmodel.cn/api/anthropic"
         with:
           #claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.ZHIPU_API_KEY }}
           #ANTHROPIC_BASE_URL
-          anthropic_base_url: https://open.bigmodel.cn/api/anthropic
+          #anthropic_base_url: https://open.bigmodel.cn/api/anthropic
           # Optional: Customize the trigger phrase (default: @claude)
           # trigger_phrase: "/claude"
 
