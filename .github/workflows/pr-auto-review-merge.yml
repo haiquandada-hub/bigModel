@@ -60,7 +60,7 @@ jobs:
       - name: Get PR Diff
         id: diff
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
         run: |
           gh pr diff ${{ github.event.pull_request.number }} > pr_diff.txt
           echo "diff_file=pr_diff.txt" >> $GITHUB_OUTPUT
@@ -69,7 +69,7 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
             你是一位资深的代码审查专家。请审查以下 Pull Request。
 
@@ -273,7 +273,7 @@ jobs:
       - name: Approve and Merge PR
         if: steps.action.outputs.action == 'approve'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           SUMMARY: ${{ needs.claude-review.outputs.summary }}
         run: |
@@ -320,7 +320,7 @@ jobs:
       - name: Request Changes
         if: steps.action.outputs.action == 'reject'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           SUMMARY: ${{ needs.claude-review.outputs.summary }}
           ISSUES: ${{ needs.claude-review.outputs.issues }}
@@ -359,7 +359,7 @@ jobs:
       - name: Request Manual Review
         if: steps.action.outputs.action == 'manual'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "⚠️ Claude review was inconclusive, requesting manual review"
