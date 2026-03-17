@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS LOGIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #050510;
+            --bg-secondary: #0a0a1f;
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff00aa;
+            --neon-green: #00ff88;
+            --text-primary: #e0e0ff;
+            --text-muted: #6080a0;
+            --card-bg: rgba(10, 15, 30, 0.85);
+            --border-glow: rgba(0, 240, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(var(--border-glow) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-glow) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            animation: float 15s infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-100vh) scale(1); }
+        }
+
+        /* Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Main Container */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 420px;
+            padding: 50px 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 4px;
+            box-shadow:
+                0 0 40px rgba(0, 240, 255, 0.1),
+                inset 0 0 60px rgba(0, 240, 255, 0.02);
+            backdrop-filter: blur(10px);
+            animation: containerGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes containerGlow {
+            0% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.1), inset 0 0 60px rgba(0, 240, 255, 0.02); }
+            100% { box-shadow: 0 0 60px rgba(0, 240, 255, 0.2), inset 0 0 80px rgba(0, 240, 255, 0.05); }
+        }
+
+        /* Corner Decorations */
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--neon-cyan);
+            border-style: solid;
+        }
+
+        .corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow:
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-cyan);
+            letter-spacing: 8px;
+            position: relative;
+            display: inline-block;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-2px, 1px); color: var(--neon-magenta); }
+            92% { transform: translate(2px, -1px); color: var(--neon-green); }
+            93% { transform: translate(-1px, 2px); color: var(--neon-cyan); }
+            94% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 4px;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--neon-green);
+            margin-bottom: 30px;
+            padding: 8px 12px;
+            background: rgba(0, 255, 136, 0.05);
+            border-left: 2px solid var(--neon-green);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--neon-green); }
+            50% { opacity: 0.5; box-shadow: 0 0 10px var(--neon-green); }
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 2px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .form-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow:
+                0 0 20px rgba(0, 240, 255, 0.2),
+                inset 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-cyan);
+            opacity: 0.6;
+            font-size: 14px;
+        }
+
+        .form-input:focus + .input-icon,
+        .form-input:focus ~ .input-icon {
+            opacity: 1;
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Verification Code */
+        .captcha-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .captcha-input {
+            flex: 1;
+        }
+
+        .captcha-display {
+            width: 120px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(255, 0, 170, 0.1), rgba(0, 240, 255, 0.1));
+            border: 1px solid rgba(255, 0, 170, 0.3);
+            border-radius: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .captcha-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: captchaScan 2s infinite;
+        }
+
+        @keyframes captchaScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .captcha-code {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .captcha-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 Q 25 30, 40 50 T 70 50 T 100 50' stroke='%2300f0ff' fill='none' stroke-width='0.5'/%3E%3Cpath d='M0 30 Q 20 50, 40 30 T 80 30' stroke='%23ff00aa' fill='none' stroke-width='0.3'/%3E%3C/svg%3E");
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 2px;
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--neon-cyan);
+            color: var(--bg-primary);
+            box-shadow:
+                0 0 30px rgba(0, 240, 255, 0.5),
+                0 0 60px rgba(0, 240, 255, 0.3);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Footer Links */
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .footer-link {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .footer-link:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--neon-cyan);
+            transition: width 0.3s ease;
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hexagon Decoration */
+        .hex-decoration {
+            position: absolute;
+            width: 60px;
+            height: 35px;
+            background: transparent;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+
+        .hex-1 { top: -20px; right: 30px; animation: hexFloat 4s ease-in-out infinite; }
+        .hex-2 { bottom: -20px; left: 30px; animation: hexFloat 4s ease-in-out infinite 2s; }
+
+        @keyframes hexFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-5px) rotate(5deg); opacity: 0.6; }
+        }
+
+        /* Data Stream Effect */
+        .data-stream {
+            position: absolute;
+            right: -60px;
+            top: 0;
+            height: 100%;
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            opacity: 0.3;
+            font-size: 8px;
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .data-stream span {
+            animation: dataScroll 2s infinite linear;
+        }
+
+        @keyframes dataScroll {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
+
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 35%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 65%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 2.5s;"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="hex-decoration hex-1"></div>
+        <div class="hex-decoration hex-2"></div>
+
+        <div class="header">
+            <div class="logo">NEXUS</div>
+            <div class="subtitle">Secure Access Terminal</div>
+        </div>
+
+        <div class="status-bar">
+            <span><span class="status-dot"></span>CONNECTION SECURE</span>
+            <span id="timestamp">--:--:--</span>
+        </div>
+
+        <form>
+            <div class="form-group">
+                <label class="form-label">User Identifier</label>
+                <div class="input-wrapper">
+                    <input type="text" class="form-input" placeholder="Enter username" autocomplete="off">
+                    <span class="input-icon">&#9679;</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Access Code</label>
+                <div class="input-wrapper">
+                    <input type="password" class="form-input" placeholder="Enter password">
+                    <span class="input-icon">&#9679;</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Verification Sequence</label>
+                <div class="captcha-group">
+                    <div class="input-wrapper captcha-input">
+                        <input type="text" class="form-input" placeholder="Enter code" maxlength="4" style="padding-left: 15px; text-transform: uppercase; letter-spacing: 8px; text-align: center;">
+                    </div>
+                    <div class="captcha-display" onclick="refreshCaptcha()" title="Click to refresh">
+                        <div class="captcha-noise"></div>
+                        <span class="captcha-code" id="captchaCode">A7X9</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Initialize Access
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <a href="#" class="footer-link">Recover Identity</a>
+            <a href="#" class="footer-link">Request Access</a>
+        </div>
+
+        <div class="data-stream">
+            <span>01101</span>
+            <span>10010</span>
+            <span>01100</span>
+            <span>10101</span>
+            <span>01011</span>
+            <span>11001</span>
+            <span>00101</span>
+            <span>10011</span>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('timestamp').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateTimestamp, 1000);
+        updateTimestamp();
+
+        // Generate random captcha
+        function refreshCaptcha() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 4; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const captchaEl = document.getElementById('captchaCode');
+            captchaEl.style.opacity = '0';
+            setTimeout(() => {
+                captchaEl.textContent = code;
+                captchaEl.style.opacity = '1';
+            }, 150);
+        }
+
+        // Form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('.submit-btn');
+            btn.textContent = 'Authenticating...';
+            btn.style.background = 'var(--neon-cyan)';
+            btn.style.color = 'var(--bg-primary)';
+
+            setTimeout(() => {
+                btn.textContent = 'Access Granted';
+                btn.style.borderColor = 'var(--neon-green)';
+                btn.style.background = 'var(--neon-green)';
+                btn.style.boxShadow = '0 0 40px rgba(0, 255, 136, 0.5)';
+            }, 2000);
+        });
+
+        // Input focus effects
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.querySelector('.input-icon').style.opacity = '1';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.querySelector('.input-icon').style.opacity = '0.6';
+            });
+        });
+    </script>
+</body>
+</html>
