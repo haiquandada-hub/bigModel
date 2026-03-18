@@ -31,6 +31,12 @@ on:
           - reject
           - skip
 
+# 添加全局权限
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
 # 并发控制：同一 PR 只运行一个审查任务
 concurrency:
   group: pr-review-${{ github.event.pull_request.number }}
@@ -40,10 +46,10 @@ jobs:
   # ==================== Claude 代码审查 ====================
   claude-review:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      id-token: write
+    #permissions:
+    #  contents: read
+    #  pull-requests: write
+    #  id-token: write
     outputs:
       approved: ${{ steps.parse.outputs.approved }}
       summary: ${{ steps.parse.outputs.summary }}
