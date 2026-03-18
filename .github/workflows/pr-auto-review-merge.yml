@@ -31,6 +31,12 @@ on:
           - reject
           - skip
 
+# 添加全局权限
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
 # 并发控制：同一 PR 只运行一个审查任务
 concurrency:
   group: pr-review-${{ github.event.pull_request.number }}
@@ -40,10 +46,10 @@ jobs:
   # ==================== Claude 代码审查 ====================
   claude-review:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      id-token: write
+    #permissions:
+    #  contents: read
+    #  pull-requests: write
+    #  id-token: write
     outputs:
       approved: ${{ steps.parse.outputs.approved }}
       summary: ${{ steps.parse.outputs.summary }}
@@ -60,7 +66,8 @@ jobs:
       - name: Get PR Diff
         id: diff
         env:
-          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          #GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh pr diff ${{ github.event.pull_request.number }} > pr_diff.txt
           echo "diff_file=pr_diff.txt" >> $GITHUB_OUTPUT
@@ -273,7 +280,8 @@ jobs:
       - name: Approve and Merge PR
         if: steps.action.outputs.action == 'approve'
         env:
-          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          #GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           SUMMARY: ${{ needs.claude-review.outputs.summary }}
         run: |
@@ -320,7 +328,8 @@ jobs:
       - name: Request Changes
         if: steps.action.outputs.action == 'reject'
         env:
-          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          #GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           SUMMARY: ${{ needs.claude-review.outputs.summary }}
           ISSUES: ${{ needs.claude-review.outputs.issues }}
@@ -359,7 +368,8 @@ jobs:
       - name: Request Manual Review
         if: steps.action.outputs.action == 'manual'
         env:
-          GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          #GH_TOKEN: ${{ secrets.ZHIPU_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "⚠️ Claude review was inconclusive, requesting manual review"
